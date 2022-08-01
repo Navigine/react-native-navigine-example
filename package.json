@@ -1,0 +1,35 @@
+{
+  "name": "navigine",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "start": "react-native start",
+    "test": "jest",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "react": "17.0.2",
+    "react-native": "0.68.1",
+    "react-native-navigine": "1.0.6"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.11.0",
+    "@babel/runtime": "^7.11.0",
+    "@react-native-community/eslint-config": "^2.0.0",
+    "@types/jest": "^26.0.9",
+    "@types/react": "^16.9.45",
+    "@types/react-native": "^0.63.6",
+    "@types/react-test-renderer": "^16.9.3",
+    "babel-jest": "^26.2.2",
+    "eslint": "^7.5.0",
+    "jest": "^26.2.2",
+    "metro-react-native-babel-preset": "^0.61.0",
+    "react-test-renderer": "17.0.2",
+    "typescript": "^3.9.7"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}
