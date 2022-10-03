@@ -1,3 +1,10 @@
+[![SWUbanner](https://i.ibb.co/DK0WNM7/react-native.jpg)](https://github.com/Navigine/react-native-navigine)
+
+## Describe
+
+The following sections contain examples for react native.
+For the library to use our SDK (Android, iOS) in react native please check a repository [here](https://github.com/Navigine/react-native-navigine). 
+
 ## Example of usage *react-native-navigine* library
 
 * npm install
