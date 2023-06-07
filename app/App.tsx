@@ -111,15 +111,10 @@ export default class App extends React.Component<{}, State> {
     };
 
     onPositionUpated = async (event: NativeSyntheticEvent<Position>) => {
-        const { locationId, sublocationId, point } = event.nativeEvent;
+        const { point, accuracy, heading, locationPoint, locationHeading} = event.nativeEvent;
 
-        const userPosition = {
-            locationId,
-            sublocationId,
-            point,
-        };
         this.setState({
-            userPosition: userPosition,
+            userPosition: locationPoint,
         });
     };
 

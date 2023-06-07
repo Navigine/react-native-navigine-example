@@ -12,7 +12,7 @@
   "dependencies": {
     "react": "17.0.2",
     "react-native": "0.68.1",
-    "react-native-navigine": "1.0.6"
+    "react-native-navigine": "1.0.8"
   },
   "devDependencies": {
     "@babel/core": "^7.11.0",
