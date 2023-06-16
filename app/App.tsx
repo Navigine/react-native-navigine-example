@@ -24,6 +24,8 @@ import {
     Polyline
 } from 'react-native-navigine'
 
+import RNPermissions, {check, request, RESULTS, PERMISSIONS, checkMultiple} from 'react-native-permissions';
+
 import LocationView from 'react-native-navigine';
 import { USER } from './images';
 
@@ -53,47 +55,28 @@ export default class App extends React.Component<{}, State> {
     state = initialState;
     view = React.createRef<LocationView>();
 
-    async requestPermissions() {
-        const chckLocationPermission = PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
-        if (chckLocationPermission === PermissionsAndroid.RESULTS.GRANTED) {
-            alert("You've access for the location");
-        } else {
-            try {
-                const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-                    {
-                        'title': 'Cool Location App required Location permission',
-                        'message': 'We required Location permission in order to get device location ' +
-                            'Please grant us.'
-                    }
-                )
-                if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                    alert("You've access for the location");
-                } else {
-                    alert("You don't have access for the location");
-                }
-            } catch (err) {
-                alert(err)
+    async requestLocationPermissions() {
+        const statuses = await checkMultiple([PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION, PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION])
+        console.log(statuses)
+        if (statuses[PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION] !== RESULTS.GRANTED) {
+            if (await request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION) === RESULTS.DENIED) {
+                alert("You don't access for the ACCESS_FINE_LOCATION");
             }
         }
-        const chckBtPermission = PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN);
-        if (chckBtPermission === PermissionsAndroid.RESULTS.GRANTED) {
-            alert("You've access for the bluetooth");
-        } else {
-            try {
-                const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-                    {
-                        'title': 'Cool Navigine React Native App required BLUETOOTH_SCAN permission',
-                        'message': 'We required BLUETOOTH_SCAN permission in order to get bt scan results ' +
-                            'Please grant us.'
-                    }
-                )
-                if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                    alert("You've access for the bluetooth");
-                } else {
-                    alert("You don't have access for the bluetooth");
-                }
-            } catch (err) {
-                alert(err)
+
+        if (statuses[PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION] !== RESULTS.GRANTED) {
+            if (await request(PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION) === RESULTS.DENIED) {
+                alert("You don't access for the ACCESS_COARSE_LOCATION");
+            }
+        }
+
+
+    }
+
+    async requestBluetoothPermissions() {
+        if (await check(PERMISSIONS.ANDROID.BLUETOOTH_SCAN) !== RESULTS.GRANTED) {
+            if (await request(PERMISSIONS.ANDROID.BLUETOOTH_SCAN) === RESULTS.DENIED) {
+                alert("You don't access for the BLUETOOTH_SCAN");
             }
         }
     };
@@ -110,7 +93,7 @@ export default class App extends React.Component<{}, State> {
         }
     };
 
-    onPositionUpated = async (event: NativeSyntheticEvent<Position>) => {
+    onPositionUpdated = async (event: NativeSyntheticEvent<Position>) => {
         const { point, accuracy, heading, locationPoint, locationHeading} = event.nativeEvent;
 
         this.setState({
@@ -149,7 +132,7 @@ export default class App extends React.Component<{}, State> {
                 <LocationView
                     ref={this.view}
                     style={styles.locationView}
-                    onPositionUpated={this.onPositionUpated}
+                    onPositionUpdated={this.onPositionUpdated}
                     onPathsUpdated={this.onPathsUpdated}
                     onMapPress={this.onMapPress}
                     onMapLongPress={this.onMapLongPress}>
@@ -178,9 +161,14 @@ export default class App extends React.Component<{}, State> {
                     ) : null}
                 </LocationView>
                 <Button
-                    title="Get Permissions (Android)"
+                    title="Get location Permissions (Android)"
                     color="#231234"
-                    onPress={this.requestPermissions}
+                    onPress={this.requestLocationPermissions}
+                />
+                <Button
+                    title="Get bluetooth Permissions (Android)"
+                    color="#231234"
+                    onPress={this.requestBluetoothPermissions}
                 />
                 <Button
                     title="Set Location ID"
