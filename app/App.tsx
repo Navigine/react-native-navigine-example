@@ -39,57 +39,96 @@ const styles = StyleSheet.create({
     }
 });
 
-LocationView.init("USER_HASH", "https://ips.navigine.com");
+const userHash = "0A26-9340-29CB-2480"
+const server = "https://ips.navigine.com"
+const locationId = 6
+const sublocationId = 10
+
+LocationView.init(userHash, server)
 
 type State = {
     userPosition?: LocationPoint;
     route?: LocationPolyline;
+    locationFinePermissionGranted: boolean;
+    locationCoarsePermissionGranted: boolean;
+    bluetoothPermissionGranted: boolean;
+    storagePermissionGranted: boolean;
 };
 
 const initialState: State = {
     userPosition: undefined,
     route: undefined,
+    locationFinePermissionGranted: false,
+    locationCoarsePermissionGranted: false,
+    bluetoothPermissionGranted: false,
+    storagePermissionGranted: false,
 };
 
 export default class App extends React.Component<{}, State> {
     state = initialState;
     view = React.createRef<LocationView>();
 
-    async requestLocationPermissions() {
+    async componentDidMount(): Promise<void> {
         const statuses = await checkMultiple([PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION, PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION])
-        console.log(statuses)
+        if (statuses[PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION] === RESULTS.GRANTED) {
+            this.setState({locationFinePermissionGranted: true});
+        }
+        if (statuses[PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION] === RESULTS.GRANTED) {
+            this.setState({locationCoarsePermissionGranted: true});
+        }
+        const btpermission = await check(PERMISSIONS.ANDROID.BLUETOOTH_SCAN)
+        if (btpermission === RESULTS.GRANTED || btpermission == RESULTS.UNAVAILABLE) {
+            this.setState({bluetoothPermissionGranted: true});
+        }
+
+        const stpermission = await check(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE)
+        console.log(stpermission)
+        if (stpermission === RESULTS.GRANTED || stpermission == RESULTS.UNAVAILABLE) {
+            this.setState({storagePermissionGranted: true});
+        }
+    }
+
+    requestLocationPermissions = async () => {
+        const statuses = await checkMultiple([PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION, PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION])
         if (statuses[PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION] !== RESULTS.GRANTED) {
-            if (await request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION) === RESULTS.DENIED) {
-                alert("You don't access for the ACCESS_FINE_LOCATION");
+            if (await request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION) === RESULTS.GRANTED) {
+                this.setState({locationFinePermissionGranted: true});
             }
         }
 
         if (statuses[PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION] !== RESULTS.GRANTED) {
-            if (await request(PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION) === RESULTS.DENIED) {
-                alert("You don't access for the ACCESS_COARSE_LOCATION");
+            if (await request(PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION) === RESULTS.GRANTED) {
+                this.setState({locationCoarsePermissionGranted: true});
+            }
+        }
+    }
+
+    requestBluetoothPermissions = async () => {
+        if (await check(PERMISSIONS.ANDROID.BLUETOOTH_SCAN) !== RESULTS.GRANTED) {
+            const permission = await request(PERMISSIONS.ANDROID.BLUETOOTH_SCAN)
+            if (permission === RESULTS.GRANTED || permission == RESULTS.UNAVAILABLE) {
+                this.setState({bluetoothPermissionGranted: true});
             }
         }
 
-
-    }
-
-    async requestBluetoothPermissions() {
-        if (await check(PERMISSIONS.ANDROID.BLUETOOTH_SCAN) !== RESULTS.GRANTED) {
-            if (await request(PERMISSIONS.ANDROID.BLUETOOTH_SCAN) === RESULTS.DENIED) {
-                alert("You don't access for the BLUETOOTH_SCAN");
+        if (await check(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE) !== RESULTS.GRANTED) {
+            const permission = await request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE)
+            console.log(permission)
+            if (permission === RESULTS.GRANTED || permission == RESULTS.UNAVAILABLE) {
+                this.setState({storagePermissionGranted: true});
             }
         }
     };
 
     setLocationId = async () => {
         if (this.view.current) {
-            this.view.current.setLocationId(6);
+            this.view.current.setLocationId(locationId);
         }
     };
 
     setSublocationId = async () => {
         if (this.view.current) {
-            this.view.current.setSublocationId(10);
+            this.view.current.setSublocationId(sublocationId);
         }
     };
 
@@ -103,11 +142,11 @@ export default class App extends React.Component<{}, State> {
 
     onPathsUpdated = async (event: NativeSyntheticEvent<RoutePath>) => {
         const { length, events, points } = event.nativeEvent;
-        const currPoints: Polyline = points.filter(({ sublocationId }) => sublocationId === 10).map(({ point }) => point);
+        const currPoints: Polyline = points.filter(({ sublocationId }) => sublocationId === sublocationId).map(({ point }) => point);
 
         const route: LocationPolyline = {
-            locationId: 6,
-            sublocationId: 10,
+            locationId: locationId,
+            sublocationId: sublocationId,
             polyline: currPoints,
         }
         this.setState({
@@ -122,13 +161,15 @@ export default class App extends React.Component<{}, State> {
     onMapLongPress = (event: NativeSyntheticEvent<Point>) => {
         const { x, y } = event.nativeEvent;
         this.view.current.screenPositionToMeters({ x, y }, (point: Point) => {
-            this.view.current.setTarget({ locationId: 6, sublocationId: 10, point: point });
+            this.view.current.setTarget({ locationId: locationId, sublocationId: sublocationId, point: point });
         });
     };
 
     render() {
         return (
             <View style={styles.container}>
+                {
+                ((this.state.locationFinePermissionGranted && this.state.locationCoarsePermissionGranted && this.state.bluetoothPermissionGranted && this.state.storagePermissionGranted) === true) ?
                 <LocationView
                     ref={this.view}
                     style={styles.locationView}
@@ -159,7 +200,7 @@ export default class App extends React.Component<{}, State> {
                             lineColor='#0000ff80'/>
                         </>
                     ) : null}
-                </LocationView>
+                </LocationView> : <Text>Grant permissions, please</Text>}
                 <Button
                     title="Get location Permissions (Android)"
                     color="#231234"
