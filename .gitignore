@@ -22,6 +22,7 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
+ios/.xcode.env.local
 
 # Android/IntelliJ
 #
@@ -42,6 +43,9 @@ buck-out/
 \.buckd/
 *.keystore
 !debug.keystore
+.cxx/
+34	*.keystore
+35	!debug.keystore
 
 # fastlane
 #
@@ -59,3 +63,9 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
+
+# Temporary files created by Metro to check the health of the file watcher
+63	.metro-health-check*
+64
+65	# testing
+66	/coverage
