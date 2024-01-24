@@ -12,7 +12,7 @@
   "dependencies": {
     "react": ">= 17.0.1",
     "react-native": ">= 0.64.3",
-    "react-native-navigine": "1.1.3",
+    "react-native-navigine": "1.1.4",
     "react-native-permissions": "3.10.1"
   },
   "devDependencies": {
