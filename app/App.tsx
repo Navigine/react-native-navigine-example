@@ -40,10 +40,10 @@ const styles = StyleSheet.create({
     }
 });
 
-const userHash = "0A26-9340-29CB-2480"
 const server = "https://ips.navigine.com"
-const locationId = 6
-const sublocationId = 10
+const userHash = "0000-0000-0000-0000" // Put your UserHash here
+const locationId = 0 // Put your locationId here
+const sublocationId = 0 // Put your sublocationId here
 
 LocationView.init(userHash, server)
 
@@ -99,8 +99,6 @@ export default class App extends React.Component<{}, State> {
 
     permissionGranted():boolean {
         if (Platform.OS === 'ios') {
-            console.log(this.state.locationAlwaysGranted)
-            console.log("123")
             return (this.state.locationAlwaysGranted) === true
         } else {
             return (this.state.locationFinePermissionGranted && this.state.locationCoarsePermissionGranted && this.state.bluetoothPermissionGranted && this.state.storagePermissionGranted) === true
@@ -113,7 +111,6 @@ export default class App extends React.Component<{}, State> {
 
             if (statuses[PERMISSIONS.IOS.LOCATION_ALWAYS] !== RESULTS.GRANTED) {
                 if (await request(PERMISSIONS.IOS.LOCATION_ALWAYS) === RESULTS.GRANTED) {
-                    console.log("statuses: ", statuses)
                     this.setState({locationAlwaysGranted: true});
                 }
             }
